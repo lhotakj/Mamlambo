@@ -1,6 +1,6 @@
-[![CircleCI](https://circleci.com/gh/lhotakj/kajiki.poc/tree/master.svg?style=svg)](https://circleci.com/gh/lhotakj/kajiki.poc/tree/master)
+[![CircleCI](https://circleci.com/gh/lhotakj/Mamlambo/tree/master.svg?style=svg)](https://circleci.com/gh/lhotakj/Mamlambo/tree/master)
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kajiki.poc&metric=alert_status)](https://sonarcloud.io/dashboard?id=kajiki.poc)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Mamlambo&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mamlambo)
 
 <img src="https://github.com/lhotakj/Mamlambo/raw/master/doc/assets/logo-big.png" width="80" />
 

@@ -3,8 +3,8 @@
 
 import sys
 import Mamlambo
-from . import Response
-from . import Configuration
+from Mamlambo.Core import Configuration
+from Mamlambo import Response
 
 
 class MamlamboException:

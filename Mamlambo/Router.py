@@ -1,18 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import Mamlambo
-from . import RendererDynamic
-from .RendererRoutes import RendererRoutes
-from .RendererRoutes import Mode
-from . import RendererStatic
-from . import RendererDefault
-from .Configuration import Configuration
-from .Response import Response
-from . import Request
-from .MamlamboException import MamlamboException
-from . import Singleton
-from .Cache import Cache
+from Mamlambo.Renderer import Dynamic, Default, Static
+from Mamlambo.Renderer.Routes import Routes
+from Mamlambo.Renderer.Routes import Mode
+from Mamlambo.Core.Configuration import Configuration
+from Mamlambo.Response import Response
+from Mamlambo import Request
+from Mamlambo.Core.MamlamboException import MamlamboException
+from Mamlambo.Core.Cache import Cache
 
 
 class Router:
@@ -22,6 +18,7 @@ class Router:
     __status = None
 
     def __init__(self, env, path_to_configuration=None):
+
         response = Response()  # instantiate empty singleton
         response.complete = False
         # Singleton.Singleton.reset(response)
@@ -61,7 +58,7 @@ class Router:
 
         # process request ---------------------------------------------------------------------------------------
         # 1) check redirections
-        RendererRoutes(config.redirections, request, response, Mode.redirection)
+        Routes(config.redirections, request, response, Mode.redirection)
         if response.complete:
             self.__content = [b'']
             self.__headers = response.headers
@@ -72,10 +69,10 @@ class Router:
             return
 
         # 2) check routes
-        RendererRoutes(config.routes, request, response, Mode.route)
+        Routes(config.routes, request, response, Mode.route)
 
         # 3) check default document
-        RendererDefault.RendererDefault(config, request, response)
+        Default.Default(config, request, response)
         if response.complete:
             self.__content = [response.content_bytes]
             self.__headers = response.headers
@@ -86,7 +83,7 @@ class Router:
             return
 
         # 4) check static content
-        RendererStatic.RendererStatic(config, request, response)
+        Static.Static(config, request, response)
         if response.complete:
             self.__content = [response.content_bytes]
             self.__headers = response.headers
@@ -101,7 +98,7 @@ class Router:
         print("response.complete=" + str(response.complete))
         print("response.status=" + str(response.status))
 
-        RendererDynamic.RendererMain(request, response)
+        Dynamic.RendererMain(request, response)
         if response.complete:
             self.__content = [response.content_bytes]
             self.__headers = response.headers
@@ -118,10 +115,6 @@ class Router:
             self.__status = response.status
 
         return
-
-
-
-
 
     # properties to pass data to WSGI
     @property

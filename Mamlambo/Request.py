@@ -1,8 +1,13 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from . import Session as session
-from . import Singleton
+from urllib.parse import urlparse
 
+from Mamlambo.Session import Session
+import inspect
+
+import os
+
+REQUEST = None
 
 class Request():
     __headers = []
@@ -19,7 +24,26 @@ class Request():
 
     __master = None
 
-    def __init__(self, headers=None):
+    def __init__(self, headers=None, ):
+        global REQUEST
+
+        print(REQUEST)
+        #print(str(frame.f_globals))
+        #print(str(frame.f_locals))
+
+        #print("================================")
+        #print("== LOCALS ==============================")
+        #print(frame.f_back.f_locals)
+        #print("================================")
+        #print(frame.f_back.f_locals)
+
+        #print(str(dir(self)))
+        #print(str(globals()))
+        #print(str(locals()))
+        #print(str(globals()["request"]))
+        #self.__uri = request.uri
+        #o = urlparse(self.__uri)
+        #self.__path_info = o.path
         if headers:
             self.__headers = headers
 
@@ -38,7 +62,7 @@ class Request():
         self.__headers = value
 
     def session_start(self):
-        self.__session = session.Session()
+        self.__session = Session.Session()
         self.__session.start()
 
     @property

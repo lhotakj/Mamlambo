@@ -8,11 +8,11 @@ import io
 import copy
 import json
 from contextlib import redirect_stdout
-from .Configuration import Configuration
-from .MamlamboException import MamlamboException
+from Mamlambo.Core.Configuration import Configuration
+from Mamlambo.Core.MamlamboException import MamlamboException
 
 
-class RendererDynamic:
+class Dynamic:
     __page_raw = None
     __page_result = None
     __page_template = None
@@ -28,13 +28,14 @@ class RendererDynamic:
     __directive_attributes = None
 
     __is_nested_call = None
-    __verbose = True
+    __verbose = False
 
     def verbose(self, text):
         if self.__verbose:
             print(text)
 
-    def __init__(self, file_name, is_fragment=False, is_nested_call=0):
+    def __init__(self, request, file_name, is_fragment=False, is_nested_call=0):
+        self.__request = request
         self.__page_mime = "text/html"
         self.__http_code = 200
         self.__page_filename = file_name
@@ -313,7 +314,7 @@ class RendererDynamic:
             # print('-- using master page')
             page_master_file_name = Configuration().map_path(path_info=self.__page_master)
             self.verbose("!RendererDynamic('" + page_master_file_name + "')")
-            masterpage = RendererDynamic(page_master_file_name, is_nested_call=1)
+            masterpage = Dynamic(self.__request, page_master_file_name, is_nested_call=1)
             self.verbose("!After RendererDynamic of master:" + str(masterpage))
             # print('-- master info')
             # print("master_placeholderse: " + str(masterpage.master_placeholders))
@@ -403,9 +404,6 @@ class RendererDynamic:
         # if page_code include the code.py
         regex_doctype = r"<[^\!].*[\^>]*>"  # tags not starting with <! like DOCTYPE
         matches = re.finditer(regex_doctype, self.__page_raw, re.MULTILINE)
-        self.verbose('~~~~~~~~')
-        self.verbose('self.__page_code_source: ' + str(self.__page_code_source))
-        self.verbose('~~~~~~~~')
         found = False
         for matches_count, match in enumerate(matches, start=0):
             found = True
@@ -416,12 +414,25 @@ class RendererDynamic:
             else:
                 include_master_page_source_code = ""
 
+            inject_request = """
+REQUEST = 'a'
+print(dir())
+globals()["REQUEST"] = 'b'
+print(dir(globals()))
+            
+\n"""
+
             if self.__page_code_source:
                 self.__page_raw = self.insert_str(
                     self.__page_raw,
-                    "\n<?python:\n" + include_master_page_source_code + "\n" + self.__page_code_source + "\n?>",
+                    "\n<?python:\n" + inject_request + include_master_page_source_code + "\n" + self.__page_code_source + "\n?>",
                     match.end())
             break
+
+        self.verbose('~~~~~~~~')
+        self.verbose('self.__page_raw: ' + str(self.__page_raw))
+        self.verbose('~~~~~~~~')
+
 
         if not found:
             try:
@@ -526,7 +537,7 @@ class RendererMain:
     # def __init__(self, file_name, is_fragment=False):
     def __init__(self, request, response):
         file_name = Configuration().map_path(path_info=request.path_info)
-        markdown = RendererDynamic(file_name, is_fragment=False, is_nested_call=0)
+        markdown = Dynamic(request, file_name, is_fragment=False, is_nested_call=0)
         response.mime = markdown.page_mime
         response.content_str = markdown.page_result
         response.code = markdown.http_code

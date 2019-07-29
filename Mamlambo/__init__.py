@@ -2,5 +2,5 @@
 
 version_info = (0, 3, 0)
 __version__ = ".".join([str(v) for v in version_info])
-__name__ = "Mamlambo"
 
+ENV = None

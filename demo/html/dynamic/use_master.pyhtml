@@ -20,4 +20,10 @@
 
 <py:placeholder id="x">
 33333333
+
+query: <span py:content="q" /><br />
+u: <span py:content="u" /><br />
+
+Powered by Mamlambo: <span py:content="version" />
+
 </py:placeholder>

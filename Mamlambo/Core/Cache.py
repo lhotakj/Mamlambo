@@ -1,7 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-from . import Session as session
-from . import Singleton
+from Mamlambo.Core import Singleton
 
 
 @Singleton.singleton_object

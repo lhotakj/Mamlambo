@@ -1,8 +1,8 @@
 import os
 import yaml
 from .MamlamboException import MamlamboException
-from . import Singleton
-from .Response import Response
+from Mamlambo.Core import Singleton
+from Mamlambo.Response import Response
 import re
 from urllib.parse import urlparse
 

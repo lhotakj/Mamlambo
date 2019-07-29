@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-from .MamlamboException import MamlamboException
+from Mamlambo.Core.MamlamboException import MamlamboException
 
 
-class RendererStatic:
+class Static:
     def __init__(self, config, request, response):
         response.complete = False
 

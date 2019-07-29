@@ -2,10 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-import os
-from . import Configuration
-from . import Request
-from . import Response
 
 from enum import Enum
 
@@ -15,7 +11,7 @@ class Mode(Enum):
     route = 'route'
 
 
-class RendererRoutes:
+class Routes:
 
     # mode = 'redirection' adds header Location and response.end
     # mode = 'route' changes url

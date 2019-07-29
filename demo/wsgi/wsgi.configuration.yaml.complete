@@ -1,0 +1,113 @@
+---
+
+extensions:
+- static: ".ico"
+  mime: image/x-icon
+  headers:
+    Cache-Control: public, max-age=3600
+    ETag: ''
+  methods:
+  - GET
+
+- static: ".png"
+  mime: image/png
+  headers:
+    Cache-Control: public, max-age=3600
+    ETag: ''
+  methods:
+  - GET
+
+- static: ".jpg"
+  mime: image/jpeg
+  headers:
+    Cache-Control: public, max-age=3600
+    ETag: ''
+  methods:
+  - GET
+
+- static: ".gif"
+  mime: image/gif
+  headers:
+    Cache-Control: public, max-age=3600
+    ETag: ''
+  methods:
+  - GET
+
+- static: ".html"
+  mime: text/html; charset=UTF-8
+  headers:
+    Cache-Control: public, max-age=3600
+    ETag: ''
+  methods:
+  - GET
+
+- static: ".js"
+  mime: application/x-javascript; charset=UTF-8
+  headers:
+    Cache-Control: public, max-age=3600
+    ETag: ''
+  methods:
+  - GET
+
+- static: ".css"
+  mime: text/css; charset=UTF-8
+  headers:
+    Cache-Control: public, max-age=3600
+    ETag: ''
+  methods:
+  - GET
+
+- dynamic: ".page"
+  mime: text/html; charset=UTF-8
+  headers: {}
+  methods:
+  - GET
+  - PUT
+  - POST
+
+- dynamic: ".pyx"
+  mime: text/html; charset=UTF-8
+  headers: {}
+  methods:
+  - GET
+  - POST
+
+- dynamic: ".cssx"
+  mime: text/cssx; charset=UTF-8
+  headers: {}
+  methods:
+  - GET
+
+redirections:
+  "/foo.html": "/my.css"
+  "^/foo.html$": "/my.css"
+  "^/foo/doo/(.*)$": "/my.css?x=${1}"
+
+routes:
+  "^/gapi.css": "/my.css"
+  "^/api/(.*)": "/my.page?x=${1}"
+  "^/extralink": "/my.page"
+  "^/route/to/(.*)": "/folder/demo3.page?x1=${1}&ads"
+
+document_root: "./wwwroot"
+
+default_document:
+- default.html
+- default.htm
+- index.html
+- index.html
+- default.pyx
+- index.pyx
+
+default_headers:
+  x-content-type-options: nosniff
+  x-frame-options: SAMEORIGIN
+  x-xss-protection: 1; mode=block
+
+optional_trailing_slash: true
+
+log: "~/log"
+
+application:
+- key: value
+- key2: value2

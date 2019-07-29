@@ -1,0 +1,3 @@
+import json
+
+logo = "@LOGO"

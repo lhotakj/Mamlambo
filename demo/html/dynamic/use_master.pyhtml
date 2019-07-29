@@ -1,0 +1,23 @@
+<%page masterpage="master.pyhtml" code="use_master.pyhtml.py" %>
+
+
+
+<py:placeholder id="header">
+
+ <span py:content="master_name" />
+
+ <span py:content="logo" />
+  this is my header
+</py:placeholder>
+
+  <py:placeholder id="content">
+    abc
+  </py:placeholder>
+
+  <py:placeholder id="footer" >
+    FFFFFFFFFFFFFFFFFFFFA
+  </py:placeholder>
+
+<py:placeholder id="x">
+33333333
+</py:placeholder>

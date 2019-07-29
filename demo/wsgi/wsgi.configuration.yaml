@@ -1,0 +1,82 @@
+---
+
+extensions:
+  - extension: ".ico"
+    serve: static
+    mime: "image/x-icon"
+    headers:
+      - Cache-Control: public, max-age=3600
+      - ETag: ''
+    methods:
+      - GET
+
+  - extension: ".html"
+    serve: static
+    mime: "text/html"
+    headers:
+      - Cache-Control: public, max-age=3600
+      - ETag: ''
+    methods:
+      - GET
+
+  - extension: ".css"
+    serve: static
+    mime: "text/css"
+    headers:
+      - Cache-Control: public, max-age=3600
+      - ETag: ''
+    methods:
+      - GET
+      
+  - extension: ".png"
+    serve: static
+    mime: "image/png"
+    headers:
+      - Cache-Control: public, max-age=3600
+      - ETag: ''
+    methods:
+      - GET
+      
+  - extension: ".jpg"
+    serve: static
+    mime: "image/jpeg"
+    headers:
+      - Cache-Control: public, max-age=3600
+      - ETag: ''
+    methods:
+      - GET
+      
+
+  - extension: ".pyhtml"
+    serve: dynamic
+    mime: "image/png"
+    headers:
+      - Cache-Control: public, max-age=3600
+      - ETag: ''
+    methods:
+      - GET      
+      
+default_document:
+- default.html
+- default.htm
+- index.html
+- index.htm
+- index.pyhtml
+
+trailing_slash_redirect: True
+
+redirections:
+  "/foo.html": "/my.css"
+  "^/foo.html$": "/my.css"
+  "^/foo/doo/(.*)$": "/my.css?x=${1}"
+  "^/services/web/jira/(.*)/(.*)$": "/jira.pyhtml?x=${1}&y=${2}"
+  "^/services/(.*)/(.*)$": "/jira.pyhtml?x=${1}"
+   
+
+routes:
+  "^/gapi.css": "/my.css"
+  "^/api/(.*)": "/my.page?x=${1}"
+  "^/extralink": "/my.page"
+  "^/route/to/(.*)": "/folder/demo3.page?x1=${1}&ads"
+  
+

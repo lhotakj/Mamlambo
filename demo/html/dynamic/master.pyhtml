@@ -1,0 +1,25 @@
+<%master code="master.pyhtml.py" %>
+<!DOCTYPE html>
+<html xmlns:py="http://www.w3.org/1999/xhtml">
+<body>
+-- HEADER --
+<py:placeholder id="header"></py:placeholder>
+-- HEADER --
+
+<hr />
+-- CONTENT --
+<py:placeholder id="content"></py:placeholder>
+-- CONTENT --
+
+<hr />
+-- FOOTER --
+<py:placeholder id="footer" ></py:placeholder>
+-- FOOTER --
+
+<hr />
+<py:placeholder id="x">
+</py:placeholder>
+-- post --
+
+</body>
+</html>

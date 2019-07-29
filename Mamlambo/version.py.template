@@ -1,0 +1,2 @@
+# template for versions
+__version__ = "0.10.[BUILD_NO]"

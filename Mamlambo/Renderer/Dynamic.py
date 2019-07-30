@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+import pickle
 
 import kajiki
 import re
@@ -7,6 +8,7 @@ import os
 import io
 import copy
 import json
+import traceback
 from contextlib import redirect_stdout
 from Mamlambo.Core.Configuration import Configuration
 from Mamlambo.Core.MamlamboException import MamlamboException
@@ -85,7 +87,8 @@ class Dynamic:
                 response_exception = MamlamboException.render(500,
                                                               error="Page rendering error",
                                                               description="Error in rendering",
-                                                              stack_trace=str(ex).replace("\n", "<br />"))
+                                                              stack_trace=str(ex).replace("\n", "<br />") + "<br>" +
+                                                                          traceback.format_exc().replace("\n", "<br>"))
                 self.__page_result = response_exception.content_bytes.decode('UTF-8')
                 self.__http_code = response_exception.code
                 self.__page_mime = response_exception.mime
@@ -414,25 +417,26 @@ class Dynamic:
             else:
                 include_master_page_source_code = ""
 
-            inject_request = """
-REQUEST = 'a'
-print(dir())
-globals()["REQUEST"] = 'b'
-print(dir(globals()))
-            
-\n"""
+
+            # inject_request = "__REQUEST = '" + str(req) + "'\n";
+
+            request = self.__request
+            req = pickle.dumps(request)
+            inject_request = "_REQUEST=" + str(req) + "\n"
+            #inject_request = "_REQUEST=request\n"
+
+            self.__page_code_source = inject_request + self.__page_code_source
+
+            print('~~~~~~~~')
+            print('self.__page_code_source:\n' + str(self.__page_code_source))
+            print('~~~~~~~~')
 
             if self.__page_code_source:
                 self.__page_raw = self.insert_str(
                     self.__page_raw,
-                    "\n<?python:\n" + inject_request + include_master_page_source_code + "\n" + self.__page_code_source + "\n?>",
+                    "\n<?python:\n" + include_master_page_source_code + "\n" + self.__page_code_source + "\n?>",
                     match.end())
             break
-
-        self.verbose('~~~~~~~~')
-        self.verbose('self.__page_raw: ' + str(self.__page_raw))
-        self.verbose('~~~~~~~~')
-
 
         if not found:
             try:
@@ -442,7 +446,7 @@ print(dir(globals()))
             except Exception as ex:
                 response_exception = MamlamboException.render(
                     500, error="Page processing error",
-                    description="Error executing code", details=str(ex))
+                    description="Error executing code.", details=str(ex) + "<br>" + traceback.format_exc())
                 self.__page_result = response_exception.content_bytes.decode('UTF-8')
                 self.__page_code = response_exception.status
                 self.__page_mime = response_exception.mime

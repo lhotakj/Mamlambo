@@ -4,10 +4,9 @@ from urllib.parse import urlparse
 
 from Mamlambo.Session import Session
 import inspect
-
 import os
+import pickle
 
-REQUEST = None
 
 class Request():
     __headers = []
@@ -25,25 +24,25 @@ class Request():
     __master = None
 
     def __init__(self, headers=None, ):
-        global REQUEST
 
-        print(REQUEST)
-        #print(str(frame.f_globals))
-        #print(str(frame.f_locals))
+        frame = inspect.stack()[1][0]
+        print('!!-----------')
+        print(str(dir(frame)))
+        print(str(frame.f_locals))
+        print('!!-----------')
 
-        #print("================================")
-        #print("== LOCALS ==============================")
-        #print(frame.f_back.f_locals)
-        #print("================================")
-        #print(frame.f_back.f_locals)
-
-        #print(str(dir(self)))
-        #print(str(globals()))
-        #print(str(locals()))
-        #print(str(globals()["request"]))
-        #self.__uri = request.uri
-        #o = urlparse(self.__uri)
-        #self.__path_info = o.path
+        if "_REQUEST" in frame.f_locals:
+            # self.url = frame.f_locals["__REQUEST"].url
+            # self.method = frame.f_locals["__REQUEST"].method
+            obj = pickle.loads(frame.f_locals["_REQUEST"])
+            #obj = frame.f_locals["_REQUEST"]
+            for variable in dir(self):
+                if not variable.startswith('_'):
+                    try:
+                        print(variable)
+                        setattr(self, variable, obj.__getattribute__(variable))
+                    except:
+                        pass
         if headers:
             self.__headers = headers
 

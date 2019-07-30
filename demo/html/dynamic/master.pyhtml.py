@@ -1,4 +1,4 @@
 import json
 
 logo = "a"
-master_name = "**************"
+master_name = "**************<br/>"

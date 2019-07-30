@@ -6,6 +6,7 @@ logo = "@LOGO"
 version = Mamlambo.__version__
 
 request = Request()
-q = request.query_string
-u = REQUEST
+
+debug = request.path_info + "<br />" + request.method + "<br />" + request.query_string
+
 

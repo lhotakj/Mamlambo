@@ -4,7 +4,7 @@
 
 <py:placeholder id="header">
 
- <span py:content="master_name" />
+ <span py:content="literal(master_name)" />
 
  <span py:content="logo" />
   this is my header
@@ -21,8 +21,8 @@
 <py:placeholder id="x">
 33333333
 
-query: <span py:content="q" /><br />
-u: <span py:content="u" /><br />
+DEBUG: ${literal(debug)}
+
 
 Powered by Mamlambo: <span py:content="version" />
 

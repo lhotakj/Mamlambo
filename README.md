@@ -11,7 +11,7 @@ Mamlambo a full stack light weighted Python 3.4+ WSGI framework supporting easy 
 * Serving of static content
 * Mod_rewrite like rules for friendly URLs with redirection
 * Fast handlers like in .NET - page without an HTML markup (in progress)
-* Rich Kajiki syntax
+* Rich Kajiki templating syntax
 * YAML based configuration
 
 Mamlambo is an african sizeable snake-like creature. Locals state that it measures twenty meters in length and has a lower body of a fish, the head of a horse and the neck of a snake. 
@@ -100,6 +100,18 @@ DEBUG: ${literal(debug)}<br />
 Powered by Mamlambo: <span py:content="version" />
 </py:placeholder>
 ```
+
+
+### 4. Getting request object
+To access the request details, instantiate an object of class `Request()` from `Mamlambo` namespace.
+```python
+from Mamlambo.Request import Request
+request = Request()
+# request.path_info ...... contains full relative URL
+# request.method ......... "GET" | "POST" | "DELETE" ...
+# request.query_string ... query string like `?param1=value1&param2=value2
+```
+
 
 ### Configuration
 

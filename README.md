@@ -1,5 +1,4 @@
-<img src="https://github.com/lhotakj/Mamlambo/raw/master/doc/assets/title.png" width="210" />
-<img src="https://github.com/lhotakj/Mamlambo/raw/master/doc/assets/logo-big.png" width="140" align="right" />
+<img src="https://github.com/lhotakj/Mamlambo/raw/master/doc/assets/logo-big.png" width="60" align="right" /><img src="https://github.com/lhotakj/Mamlambo/raw/master/doc/assets/title.png" width="250" />
 
 [![CircleCI](https://circleci.com/gh/lhotakj/Mamlambo/tree/master.svg?style=svg)](https://circleci.com/gh/lhotakj/Mamlambo/tree/master)
 

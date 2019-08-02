@@ -31,11 +31,11 @@ Mamlambo is an african sizeable snake-like creature. Locals state that it measur
 ## Basic concept
 The framework is capable serving static content (`.jpg`, `.png`, `.ico` etc.), dynamic HTML content (by default markup `.pyhtml` extension with `.pyhtml.py` with code behind) and handlers (by default `.pyh` extension). The extensions are configurable in the yaml file. The configuration file has the following sections:
 
-### Static content
+### 1. Static content
 Extensions defined in the configuration with flag `serve: static` get served with defined MIME type as found on the file system under `DOCUMENT_ROOT`. If your `DOCUMENT_ROOT` is set to `/var/www/html/` and contains `favicon.ico` it gets served under `/favicon.ico` URL. In case you use can let Apache handle the static files.
 
-### Dynamic content with markup files
-The simplest dynamic file can look like:
+### 2. Dynamic content with markup files
+The simplest dynamic file can look like this file. The code should start with page directive `<%page %>`:
 
 **demo.pyhtml**:
 ```html
@@ -63,6 +63,42 @@ and in page directive of the markup file add a link to the codebehind file **dem
 <html><body>
 Current data and time is <span py:content="now" />
 </body></html>
+```
+
+### 3. Dynamic content with master page
+Firstly define your master page with a page directive `<%master %>`, this example has also a code behind python file. Use tags `py:placeholder>` to mark elements which will be replaced. Please note the the master page and the page using this master page has to contain the same IDs.
+
+**master.pyhtml**:
+```html
+<%master code="master.pyhtml.py" %>
+<!DOCTYPE html>
+<html xmlns:py="http://www.w3.org/1999/xhtml">
+<body>
+-- HEADER --
+<py:placeholder id="header"></py:placeholder>
+-- HEADER --
+-- CONTENT --
+<py:placeholder id="content"></py:placeholder>
+-- CONTENT --
+</body>
+</html>
+```
+
+**use_master.pyhtml**
+```html
+<%page masterpage="master.pyhtml" code="use_master.pyhtml.py" %>
+<py:placeholder id="header">
+ <span py:content="literal(master_name)" />
+</py:placeholder>
+
+<py:placeholder id="content">
+this is my content from use_master page
+</py:placeholder>
+
+DEBUG: ${literal(debug)}<br />
+  
+Powered by Mamlambo: <span py:content="version" />
+</py:placeholder>
 ```
 
 ### Configuration

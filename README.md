@@ -1,4 +1,5 @@
 <img src="https://github.com/lhotakj/Mamlambo/raw/master/doc/assets/logo-big.png" width="60" align="right" />
+
 <img src="https://github.com/lhotakj/Mamlambo/raw/master/doc/assets/title.png" width="250" />
 
 [![CircleCI](https://circleci.com/gh/lhotakj/Mamlambo/tree/master.svg?style=svg)](https://circleci.com/gh/lhotakj/Mamlambo/tree/master) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Mamlambo&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mamlambo)
@@ -35,6 +36,7 @@ Extensions defined in the configuration with flag `serve: static` get served wit
 
 ### Dynamic content with markup files
 The simplest dynamic file can look like:
+
 **demo.pyhtml**:
 ```
 <%page %>
@@ -46,21 +48,21 @@ now = str(datetime.datetime.now())
 Current data and time is <span py:content="now" />
 </body></html>
 ```
-You can place you code to a code behind
-import datetime 
-  
-# using now() to get current time 
-**demo.pyhtml**:
-```
-<%page code=demo.pyhtml" %>
-<html><body>
-Current data and time is <span py:content="now" />
-</body></html>
-```
+
+Alternatively you can place you code to a code behind file
+
 **demo.pyhtml.py**:
 ```
 import datetime 
 now = str(datetime.datetime.now())
+```
+
+and in page directive of the markup file add a link to the codebehind file **demo.pyhtml**:
+```
+<%page code=demo.pyhtml.py" %>
+<html><body>
+Current data and time is <span py:content="now" />
+</body></html>
 ```
 
 ### Configuration

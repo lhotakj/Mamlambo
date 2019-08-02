@@ -38,7 +38,7 @@ Extensions defined in the configuration with flag `serve: static` get served wit
 The simplest dynamic file can look like:
 
 **demo.pyhtml**:
-```
+```html
 <%page %>
 <html><body>
 <?python
@@ -52,13 +52,13 @@ Current data and time is <span py:content="now" />
 Alternatively you can place you code to a code behind file
 
 **demo.pyhtml.py**:
-```
+```python
 import datetime 
 now = str(datetime.datetime.now())
 ```
 
 and in page directive of the markup file add a link to the codebehind file **demo.pyhtml**:
-```
+```html
 <%page code=demo.pyhtml.py" %>
 <html><body>
 Current data and time is <span py:content="now" />
@@ -67,7 +67,7 @@ Current data and time is <span py:content="now" />
 
 ### Configuration
 
-``` yaml
+```yaml
 - extension: ".<extension>"
     serve: static | dynamic 
     mime: "<mimetype>"

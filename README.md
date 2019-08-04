@@ -23,7 +23,7 @@ Mamlambo is an african sizeable snake-like creature. Locals state that it measur
 ## Installation Instructions
 * Download the latest stable release from GitHub (TBD) or install via pip `pip install Mamlambo` (TBD)
 * Apache:
-    * [follow the instructions how to compile mod_wsgi with Python 3.7.3](https://github.com/lhotakj/enable-wsgi_mod-python37-apache/blob/master/install.yaml)
+    * You wil need **mod_wsgi** developed by Graham Dumpleton (https://github.com/GrahamDumpleton/mod_wsgi) to be able to run WSGI with Python3 - [follow the instructions how to compile mod_wsgi with Python 3.7.3](https://github.com/lhotakj/enable-wsgi_mod-python37-apache/blob/master/install.yaml) or you can you prepared [docker images](https://cloud.docker.com/u/lhotakj/repository/docker/lhotakj/centos-apache-mod_wsgi-python3), if you miss some specific version of Python, let me know, or you can build your own image by altering the (script)[https://github.com/lhotakj/Mamlambo/tree/master/docker].
     * Prepare the WSGI application and place to your prefered path, e.g. `/var/www/wsgi`, see [demo files](https://github.com/lhotakj/Mamlambo/tree/master/demo/wsgi)
     * Add a the [following lines](https://raw.githubusercontent.com/lhotakj/Mamlambo/master/demo/apache/mamlambo.conf) to your `httpd.conf` file or preferably add [this file](https://github.com/lhotakj/Mamlambo/blob/master/demo/apache/mamlambo.conf) to the folder with configuration. Make sure the paths are correct.
     * Restart Apache daemon

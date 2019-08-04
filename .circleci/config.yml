@@ -18,6 +18,11 @@ jobs:
 
     working_directory: ~/repo
 
+    - run:
+        name: install additional packages
+        command: |
+           yum install git unzip -y -q
+
     steps:
       - checkout
 

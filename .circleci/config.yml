@@ -21,11 +21,11 @@ jobs:
     steps:
       - checkout
 
-    # Download missing tools
-    - run:
-        name: install additional packages
-        command: |
-           yum install git unzip -y -q
+      # Download missing tools
+      - run:
+          name: install additional packages
+          command: |
+            yum install git unzip -y -q
 
       # Download and cache dependencies
       - restore_cache:

@@ -6,7 +6,7 @@ sudo docker pull centos:7
 # set constants
 docker_hub_user=lhotakj
 docker_hub_repo=centos-apache-mod_wsgi-python3
-python_versions=(3.4.0 3.5.0 3.6.0 3.7.3 3.7.4)
+python_versions=(3.4.0 3.5.0 3.6.0 3.7.0 3.7.1 3.7.2 3.7.3 3.7.4)
 python_versions_count=${#python_versions[@]}
 
 loop=0

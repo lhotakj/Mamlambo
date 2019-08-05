@@ -55,6 +55,13 @@ ln -sf /usr/bin/python3.7/lib/libpython3.7m.so.1.0 /lib/libpython3.7m.so.1.0
 ln -sf /usr/bin/python3.7/lib/libpython3.7m.so.1.0 /lib64/libpython3.7m.so.1.0
 
 echo -e "# This file loads custom built mod_wsgi $mod_wsgi_source_version with Python $python_version\n\nLoadModule wsgi_module modules/mod_wsgi.so\n\n" >>/etc/httpd/conf.modules.d/10-python-${python_version-wsgi}-${mod_wsgi_source_version}.conf
+
+# set ServerName
+echo 'ServerName 127.0.0.1' >> /etc/httpd/conf/httpd.conf
+
+# launch apache during boot
+systemctl enable httpd
+
 apachectl restart
 echo "Listing moduled"
 check=$(apachectl -M 2>/dev/null | grep wsgi_module)

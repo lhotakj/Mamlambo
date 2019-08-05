@@ -40,7 +40,7 @@ ln -sf /usr/bin/python3.7/bin/python3.7 /usr/bin/python3
 /usr/src/Python-${python_version}/python -m ensurepip
 /usr/src/Python-${python_version}/python -m pip install -q --upgrade pip
 
-mkdir -f /tmp/m
+mkdir -p /tmp/m
 cd /tmp/m
 wget --quiet ${mod_wsgi_source_url}/${mod_wsgi_source_version}.tar.gz
 tar xvfz ./${mod_wsgi_source_version}.tar.gz

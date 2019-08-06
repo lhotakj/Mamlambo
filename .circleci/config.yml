@@ -38,8 +38,12 @@ jobs:
       - run:
           name: Fast check - request
           command: |
+            H="$(docker exec mamlambo bash -c 'curl -IL --silent http://localhost')"
             HTTP_STATUS="$(docker exec mamlambo bash -c 'curl -IL --silent http://localhost | grep HTTP')"
             SERVER_HEADER="$(docker exec mamlambo bash -c 'curl -IL --silent http://localhost | grep Server:')"
+            echo $H
+            echo $HTTP_STATUS
+            echo $SERVER_HEADER
 
       - run:
           name: Fast check - test

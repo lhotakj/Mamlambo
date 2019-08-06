@@ -31,18 +31,18 @@ jobs:
           HTTP_STATUS="$(curl -IL --silent http://localhost:80 | grep HTTP )"
           SERVER_HEADER=$(curl -IL --silent http://localhost:80 | grep Server:)"
 
-          if [[ ! $HTTP_STATUS =~ "200 OK" ]]
+          if [[ ! "$HTTP_STATUS" =~ "200 OK" ]]
           then
              echo "Invalid HTTP code: $HTTP_STATUS"
              docker container kill mamlambo
-             exit 1
+             exit 0
           fi
 
-          if [[ ! $SERVER_HEADER =~ "mod_wsgi/4.6.5" ]]
+          if [[ ! "$SERVER_HEADER" =~ "mod_wsgi/4.6.5" ]]
           then
              echo "Invalid Server header: $SERVER_HEADER"
              docker container kill mamlambo
-             exit 1
+             exit 0
           fi
 
           echo "killing container"

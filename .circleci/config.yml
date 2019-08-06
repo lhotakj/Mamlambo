@@ -39,7 +39,7 @@ jobs:
           command: |
             echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
             docker run -idt --rm -v /sys/fs/cgroup:/sys/fs/cgroup:ro -p 80:80 --tmpfs /run --tmpfs /run/lock --name=mamlambo lhotakj/centos-apache-mod_wsgi-python3:3.7.4
-
+            docker inspect mamlambo | grep "IPAddress"
       - run:
           name: Fast check - request
           command: |

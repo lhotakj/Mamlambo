@@ -59,7 +59,7 @@ jobs:
       - run:
           name: install additional packages
           command: |
-            apt install git unzip -y -q
+            sudo apt install git unzip -y -q
 
       # Download and cache dependencies
       - restore_cache:

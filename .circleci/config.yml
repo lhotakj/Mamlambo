@@ -43,8 +43,8 @@ jobs:
       - run:
           name: Fast check - request
           command: |
-            HTTP_STATUS="$(curl -IL --silent http://127.0.0.1:80 | grep HTTP )"
-            SERVER_HEADER=$(curl -IL --silent http://127.0.0.1:80 | grep Server:)"
+            HTTP_STATUS="$(curl -IL --silent http://172.17.0.2:80 | grep HTTP )"
+            SERVER_HEADER=$(curl -IL --silent http://172.17.0.2:80 | grep Server:)"
 
       - run:
           name: Fast check - test

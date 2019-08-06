@@ -24,29 +24,42 @@ jobs:
       - setup_remote_docker:
             version: 18.06.0-ce
 
-      - run: |
-          echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
-          docker run -idt --rm -v /sys/fs/cgroup:/sys/fs/cgroup:ro -p 80:80 --tmpfs /run --tmpfs /run/lock --name=mamlambo lhotakj/centos-apache-mod_wsgi-python3:3.7.4
+      - run:
+          name: Login to docker.io
+          command: |
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+            docker run -idt --rm -v /sys/fs/cgroup:/sys/fs/cgroup:ro -p 80:80 --tmpfs /run --tmpfs /run/lock --name=mamlambo lhotakj/centos-apache-mod_wsgi-python3:3.7.4
 
-          HTTP_STATUS="$(curl -IL --silent http://localhost:80 | grep HTTP )"
-          SERVER_HEADER=$(curl -IL --silent http://localhost:80 | grep Server:)"
+      - run:
+          name: Run docker
+          command: |
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+            docker run -idt --rm -v /sys/fs/cgroup:/sys/fs/cgroup:ro -p 80:80 --tmpfs /run --tmpfs /run/lock --name=mamlambo lhotakj/centos-apache-mod_wsgi-python3:3.7.4
 
-          if [[ ! "$HTTP_STATUS" =~ "200 OK" ]]
-          then
-             echo "Invalid HTTP code: $HTTP_STATUS"
-             docker container kill mamlambo
-             exit 0
-          fi
+      - run:
+          name: Fast check - request
+          command: |
+            HTTP_STATUS="$(curl -IL --silent http://localhost:80 | grep HTTP )"
+            SERVER_HEADER=$(curl -IL --silent http://localhost:80 | grep Server:)"
 
-          if [[ ! "$SERVER_HEADER" =~ "mod_wsgi/4.6.5" ]]
-          then
-             echo "Invalid Server header: $SERVER_HEADER"
-             docker container kill mamlambo
-             exit 0
-          fi
+      - run:
+          name: Fast check - test
+          command: |
+            if [[ ! "$HTTP_STATUS" =~ "200 OK" ]]
+            then
+               echo "Invalid HTTP code: $HTTP_STATUS"
+               docker container kill mamlambo
+               exit 0
+            fi
 
-          echo "killing container"
-          docker container kill mamlambo
+            if [[ ! "$SERVER_HEADER" =~ "mod_wsgi/4.6.5" ]]
+            then
+               echo "Invalid Server header: $SERVER_HEADER"
+               docker container kill mamlambo
+               exit 0
+            fi
+            echo "killing container"
+            docker container kill mamlambo
 
       # Download missing tools
       - run:

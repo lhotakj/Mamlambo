@@ -38,28 +38,19 @@ jobs:
       - run:
           name: Fast check - request
           command: |
-            H="$(docker exec mamlambo bash -c 'curl -IL --silent http://localhost')"
-            HTTP_STATUS="$(docker exec mamlambo bash -c 'curl -IL --silent http://localhost | grep HTTP')"
             SERVER_HEADER="$(docker exec mamlambo bash -c 'curl -IL --silent http://localhost | grep Server:')"
-            echo $H
-            echo $HTTP_STATUS
-            echo $SERVER_HEADER
 
       - run:
           name: Fast check - test
           command: |
-            if [[ ! "$HTTP_STATUS" =~ "200 OK" ]]
-            then
-               echo "Invalid HTTP code: $HTTP_STATUS"
-               docker container kill mamlambo
-               exit 0
-            fi
 
             if [[ ! "$SERVER_HEADER" =~ "mod_wsgi/4.6.5" ]]
             then
                echo "Invalid Server header: $SERVER_HEADER"
                docker container kill mamlambo
-               exit 0
+               exit 1
+            else
+               echo "WSGI OK"
             fi
             echo "killing container"
             docker container kill mamlambo
@@ -68,7 +59,7 @@ jobs:
       - run:
           name: install additional packages
           command: |
-            yum install git unzip -y -q
+            apt install git unzip -y -q
 
       # Download and cache dependencies
       - restore_cache:

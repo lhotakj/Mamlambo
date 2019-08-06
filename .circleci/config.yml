@@ -33,14 +33,14 @@ jobs:
           name: Run docker
           command: |
             echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
-            docker run -idt --rm -v /sys/fs/cgroup:/sys/fs/cgroup:ro -p 8080:80 --tmpfs /run --tmpfs /run/lock --name=mamlambo lhotakj/centos-apache-mod_wsgi-python3:3.7.4
-            docker inspect mamlambo | grep "IPAddress"
+            docker run -idt --rm -v /sys/fs/cgroup:/sys/fs/cgroup:ro -p 80:80 --tmpfs /run --tmpfs /run/lock --name=mamlambo lhotakj/centos-apache-mod_wsgi-python3:3.7.4
+
       - run:
           name: Fast check - request
           command: |
-            curl -IL --silent http://0.0.0.0:8080
-            HTTP_STATUS="$(curl -IL --silent http://0.0.0.0:8080 | grep HTTP )"
-            SERVER_HEADER=$(curl -IL --silent http://0.0.0.0:8080 | grep Server:)"
+
+            HTTP_STATUS="$(docker exec mamlambo curl -IL --silent http://0.0.0.0:8080 | grep HTTP )"
+            SERVER_HEADER=$(docker exec mamlambo curl -IL --silent http://0.0.0.0:8080 | grep Server:)"
 
       - run:
           name: Fast check - test

@@ -38,10 +38,9 @@ jobs:
       - run:
           name: Fast check - request
           command: |
-
-            HTTP_STATUS="$(docker exec mamlambo curl -IL --silent http://localhost | grep HTTP )"
-            SERVER_HEADER=$(docker exec mamlambo curl -IL --silent http://localhost | grep Server:)"
-
+            HTTP_STATUS="$(docker exec mamlambo bash -c 'curl -IL --silent http://localhost | grep HTTP')"
+            SERVER_HEADER=$(docker exec mamlambo bash -c 'curl -IL --silent http://localhost | grep Server:')"
+            
       - run:
           name: Fast check - test
           command: |

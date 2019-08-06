@@ -27,11 +27,6 @@ jobs:
       - run:
           name: Login to docker.io
           command: |
-            : docker kill $(docker ps -aq)
-            : docker rm $(docker ps -aq)
-            : docker rmi $(docker images -q)
-            : docker container prune
-            docker container ls -a
             echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
 
       - run:
@@ -43,8 +38,9 @@ jobs:
       - run:
           name: Fast check - request
           command: |
-            HTTP_STATUS="$(curl -IL --silent http://172.17.0.2:80 | grep HTTP )"
-            SERVER_HEADER=$(curl -IL --silent http://172.17.0.2:80 | grep Server:)"
+            curl -IL http://172.17.0.2:80
+            #HTTP_STATUS="$(curl -IL --silent http://172.17.0.2:80 | grep HTTP )"
+            #SERVER_HEADER=$(curl -IL --silent http://172.17.0.2:80 | grep Server:)"
 
       - run:
           name: Fast check - test

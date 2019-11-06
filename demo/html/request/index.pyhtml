@@ -1,0 +1,23 @@
+<%page code="index.pyhtml.py" %>
+<html>
+  <head>
+    <title>${literal(title)}</title>
+  </head>
+<body>  
+<h1>REQUEST DEMO </h1>
+
+<h2>List or properties and methods of instantiated Request()</h2>
+<?python
+variables = filter(lambda x: not x.startswith("_"), dir(request))
+?>
+
+<table>
+  <tr><td>Object</td><td>Value</td></tr>
+  <tr py:for="variable in variables">
+    <td>${literal(variable)}</td><td>${str(getattr(request,variable))}</td>
+  </tr>
+</table>
+
+<br />
+</body>
+</html>

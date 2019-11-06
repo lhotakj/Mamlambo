@@ -22,6 +22,7 @@ class Request():
     __query_string = None
 
     __master = None
+    __obj = None
 
     def __init__(self, headers=None, ):
 
@@ -35,16 +36,20 @@ class Request():
             # self.url = frame.f_locals["__REQUEST"].url
             # self.method = frame.f_locals["__REQUEST"].method
             obj = pickle.loads(frame.f_locals["_REQUEST"])
+            self.__obj = obj
             #obj = frame.f_locals["_REQUEST"]
             for variable in dir(self):
                 if not variable.startswith('_'):
                     try:
-                        print(variable)
-                        setattr(self, variable, obj.__getattribute__(variable))
+                        setattr(Request, variable, obj.__getattribute__(variable))
+                        print(variable + "=" + obj.__getattribute__(variable))
                     except:
                         pass
         if headers:
             self.__headers = headers
+
+#    def __repr__(self):
+#        return str(self.__obj)
 
     def add_header(self, header, value):
         self.__headers = self.__headers + [(header, value)]
@@ -66,11 +71,11 @@ class Request():
 
     @property
     def session(self):
-        return self.__session.keys
+        return self.__session.keys if self.__session else None
 
     @property
     def session_id(self):
-        return str(self.__session.session_id)
+        return str(self.__session.session_id) if self.__session else None
 
     def session_destroy(self):
         self.__session.destroy()

@@ -193,9 +193,9 @@ class Dynamic:
                 self.verbose("SOURCE=" + self.__page_code)
                 if self.__page_code:
                     self.__page_code_source = self.load_code()
-                    self.verbose("SOURCE_CODE=" + self.__page_code_source)
-                    if not isinstance(code, str):
+                    if not isinstance(self.__page_code_source, str):
                         return False
+                    self.verbose("SOURCE_CODE=" + str(self.__page_code_source))
             elif atr == "mime":
                 self.__page_mime = val
             elif atr == "masterpage":
@@ -417,13 +417,15 @@ class Dynamic:
             else:
                 include_master_page_source_code = ""
 
-
             # inject_request = "__REQUEST = '" + str(req) + "'\n";
 
             request = self.__request
+            print("~AAAA~~~~~~~~~~~")
+            print(self.__request.method)
+            print("~AAAA~~~~~~~~~~~")
             req = pickle.dumps(request)
             inject_request = "_REQUEST=" + str(req) + "\n"
-            #inject_request = "_REQUEST=request\n"
+            # inject_request = "_REQUEST=request\n"
 
             self.__page_code_source = inject_request + self.__page_code_source
 
@@ -434,7 +436,8 @@ class Dynamic:
             if self.__page_code_source:
                 self.__page_raw = self.insert_str(
                     self.__page_raw,
-                    "\n<?python:\n" + include_master_page_source_code + "\n" + self.__page_code_source + "\n?>",
+                    "\n<?python:\n" +
+                    include_master_page_source_code + "\n" + self.__page_code_source + "\n?>",
                     match.end())
             break
 

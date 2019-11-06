@@ -4,7 +4,7 @@ from .MamlamboException import MamlamboException
 from Mamlambo.Core import Singleton
 from Mamlambo.Response import Response
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 
 @Singleton.singleton_object
@@ -128,6 +128,7 @@ class Configuration(metaclass=Singleton.Singleton):
             request.query_string = env['QUERY_STRING']
             if request.query_string == "":
                 request.query_string = None
+            request.get = parse_qs(request.query_string)   #TODO hide on frontent
 
         if 'REQUEST_URI' in env:
             request.uri = env['REQUEST_URI']  # with query params

@@ -21,6 +21,8 @@ class Request():
     __path_info = None
     __query_string = None
 
+    __get = None
+
     __master = None
     __obj = None
 
@@ -92,6 +94,11 @@ class Request():
     @property
     def get(self):
         return self.__param_get
+
+    @get.setter
+    def get(self, value):
+        self.__param_get = value
+
 
     @property
     def post(self):

@@ -1,0 +1,16 @@
+
+<?python:
+
+from Mamlambo.Request import Request
+
+request = Request()
+
+print('GET:')
+print(request.get)
+print(request.method)
+print('<br />')
+print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+?>
+
+
+

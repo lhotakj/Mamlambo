@@ -30,7 +30,7 @@ class Dynamic:
     __directive_attributes = None
 
     __is_nested_call = None
-    __verbose = False
+    __verbose = True
 
     def verbose(self, text):
         if self.__verbose:
@@ -48,12 +48,17 @@ class Dynamic:
         # detect <@page ... > ------------------------------------------------------------------------------------------
         regex_page = r"^(\s+|)*<%(\s+|)*[pP][aA][gG][eE](.*|\n)%>"
         self.verbose("RendererDynamic.after")
-        self.verbose("ANALYSIS: --")
+        self.verbose("ANALYSIS: self.__page_raw: --")
         self.verbose(self.__page_raw)
-        self.verbose("ANALYSIS: --")
+        self.verbose("-----------------------------")
         matches = re.findall(regex_page, self.__page_raw, flags=re.IGNORECASE | re.MULTILINE)
         self.verbose("RendererDynamic.matches pages = " + str(matches))
-        if len(matches) > 1:
+        self.verbose("RendererDynamic.matches len(matches) = " + str(len(matches)))
+
+        len_matches = len(matches)
+
+        # more than one <%page %>
+        if len_matches > 1:
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!|||||!!
             # ! experimental error handling !!!!!!!!!!
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!|||||!!
@@ -65,7 +70,47 @@ class Dynamic:
             self.__page_code = response_exception.status
             self.__page_mime = response_exception.mime
             return
-        elif len(matches) == 1:
+
+        # no <%page %> so expects <?python: ?>
+        elif len_matches == 0:
+            try:
+                self.__page_raw = self.__page_raw.strip("\n").strip("").strip("\n")
+                first_line = str(self.__page_raw.partition('\n')[0]).lower()
+                if first_line[:8] == "<?python":
+                    if self.__page_raw.endswith("?>"):
+                        self.__page_raw = self.__page_raw[:-2]
+                    lines = self.__page_raw.splitlines()
+                    lines[0] = ""
+                    self.__page_raw = "\n".join(lines)
+                    self.verbose("ONLY CODE:\n---------------" + self.__page_raw)
+
+                    #TODO: copy ! refactor
+                    request = self.__request
+                    req = pickle.dumps(request)
+                    self.__page_raw = "_REQUEST=" + str(req) + "\n" + self.__page_raw
+
+                    with io.StringIO() as buf, redirect_stdout(buf):
+                        exec(self.__page_raw)
+                        self.__page_result = buf.getvalue()
+                        return
+                else:  # not decorated so display as static
+                    self.__page_result = self.__page_raw
+                    self.__http_code = 200
+            except Exception as ex:
+                response_exception = MamlamboException.render(500,
+                                                              error="Page rendering error",
+                                                              description="Error in rendering.",
+                                                              stack_trace=str(ex).replace("\n", "<br />") + "<br>" +
+                                                                          traceback.format_exc().replace("\n", "<br>"))
+                self.__page_result = response_exception.content_bytes.decode('UTF-8')
+                self.__http_code = response_exception.code
+                self.__page_mime = response_exception.mime
+                return
+
+            return
+
+        # one <%page %>
+        elif len_matches == 1:
             attributes_string = " ".join(list(matches[0])).replace("\n", "").strip()
             if not self.process_directive_attributes(attributes_string):
                 return
@@ -75,6 +120,7 @@ class Dynamic:
             if not ok:
                 return
             try:
+                self.verbose("KAJIKI process:" + self.__page_raw)
                 x = kajiki.xml_template.XMLTemplate(
                     source=self.__page_raw,
                     is_fragment=is_fragment,
@@ -266,7 +312,7 @@ class Dynamic:
 
         # remove master directive
         self.__page_raw = re.sub(r"^(\s+|)*<%(\s+|)*[mM][aA][sS][tT][eE][rR](.*|\n)%>", "", self.__page_raw)
-        self.verbose("in " + self.__type)
+        self.verbose("process_directive_master: in " + self.__type)
         ms = list()
 
         # https://regex101.com/r/Z4tKDg/3
@@ -310,7 +356,7 @@ class Dynamic:
     def process_directive_page(self, matches):
         self.__type = "page"
         self.__page_raw = re.sub(r"^(\s+|)*<%(\s+|)*[pP][aA][gG][eE](.*|\n)%>", "", self.__page_raw)
-        self.verbose("in " + self.__type)
+        self.verbose("process_directive_page: in " + self.__type)
         masterpage = None  # to hold source code
 
         if self.__page_master:
@@ -419,6 +465,7 @@ class Dynamic:
 
             # inject_request = "__REQUEST = '" + str(req) + "'\n";
 
+            # TODO: REFACTOR
             request = self.__request
             print("~AAAA~~~~~~~~~~~")
             print(self.__request.method)
@@ -443,9 +490,14 @@ class Dynamic:
 
         if not found:
             try:
-                with io.StringIO() as buf, redirect_stdout(buf):
-                    exec(self.__page_code_source)
-                    self.__page_result = buf.getvalue()
+                # no source
+                print("self.__page_code_source:" + str(self.__page_code_source))
+                if self.__page_code_source:
+                    with io.StringIO() as buf, redirect_stdout(buf):
+                        exec(self.__page_code_source)
+                        self.__page_result = buf.getvalue()
+                else:
+                    self.__page_result = ""
             except Exception as ex:
                 response_exception = MamlamboException.render(
                     500, error="Page processing error",

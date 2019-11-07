@@ -29,10 +29,10 @@ class Request():
     def __init__(self, headers=None, ):
 
         frame = inspect.stack()[1][0]
-        print('!!-----------')
-        print(str(dir(frame)))
-        print(str(frame.f_locals))
-        print('!!-----------')
+        #print('!!-----------')
+        #print(str(dir(frame)))
+        #print(str(frame.f_locals))
+        #print('!!-----------')
 
         if "_REQUEST" in frame.f_locals:
             # self.url = frame.f_locals["__REQUEST"].url
@@ -44,7 +44,7 @@ class Request():
                 if not variable.startswith('_'):
                     try:
                         setattr(Request, variable, obj.__getattribute__(variable))
-                        print(variable + "=" + obj.__getattribute__(variable))
+                        #print(variable + "=" + obj.__getattribute__(variable))
                     except:
                         pass
         if headers:
@@ -98,7 +98,6 @@ class Request():
     @get.setter
     def get(self, value):
         self.__param_get = value
-
 
     @property
     def post(self):

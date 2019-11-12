@@ -6,6 +6,7 @@ from Mamlambo.Session import Session
 import inspect
 import os
 import pickle
+import time
 
 
 class Request():
@@ -29,29 +30,28 @@ class Request():
     def __init__(self, headers=None, ):
 
         frame = inspect.stack()[1][0]
-        #print('!!-----------')
-        #print(str(dir(frame)))
-        #print(str(frame.f_locals))
-        #print('!!-----------')
-
+        # read request data from hidden variable and deletes it
         if "_REQUEST" in frame.f_locals:
             # self.url = frame.f_locals["__REQUEST"].url
             # self.method = frame.f_locals["__REQUEST"].method
             obj = pickle.loads(frame.f_locals["_REQUEST"])
             self.__obj = obj
-            #obj = frame.f_locals["_REQUEST"]
             for variable in dir(self):
                 if not variable.startswith('_'):
                     try:
                         setattr(Request, variable, obj.__getattribute__(variable))
-                        #print(variable + "=" + obj.__getattribute__(variable))
+                        # print(variable + "=" + obj.__getattribute__(variable))
                     except:
                         pass
+            # remove _REQUEST and _RESPONSE so it's invisible for user
+            del frame.f_locals["_REQUEST"]
+
+        # if response delivered then delete it
+        #if "_RESPONSE" in frame.f_locals:
+        #    del frame.f_locals["_RESPONSE"]
+
         if headers:
             self.__headers = headers
-
-#    def __repr__(self):
-#        return str(self.__obj)
 
     def add_header(self, header, value):
         self.__headers = self.__headers + [(header, value)]

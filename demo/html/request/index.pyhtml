@@ -8,7 +8,7 @@
 
 <h2>List or properties and methods of instantiated Request()</h2>
 <?python
-variables = filter(lambda x: not x.startswith("_"), dir(request))
+variables = filter(lambda x: (not x.startswith("_") and not callable(getattr(request,x))), dir(request))
 ?>
 
 <table>

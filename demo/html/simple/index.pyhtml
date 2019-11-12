@@ -2,14 +2,21 @@
 <?python:
 
 from Mamlambo.Request import Request
+from Mamlambo.Response import Response
 
 request = Request()
+response = Response()
 
 print('GET:')
 print(request.get)
 print(request.method)
 print('<br />')
 print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+response.mime="application/json"
+print(response.mime)
+print(response.code)
+
 ?>
 
 

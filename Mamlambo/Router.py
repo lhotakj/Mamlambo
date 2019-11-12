@@ -93,10 +93,10 @@ class Router:
                           status=response.status)
             return
 
-        print('--after-statisc --')
-        print("response.content=" + str(response.content_bytes))
-        print("response.complete=" + str(response.complete))
-        print("response.status=" + str(response.status))
+        #print('--after-statisc --')
+        #print("response.content=" + str(response.content_bytes))
+        #print("response.complete=" + str(response.complete))
+        #print("response.status=" + str(response.status))
 
         Dynamic.RendererMain(request, response)
         if response.complete:
@@ -105,10 +105,9 @@ class Router:
             self.__status = response.status
             return
         else:
-            print('hehe')
             response = MamlamboException.render(
                 http_code=404,
-                error="Page not found (END)",
+                error="Page not found",
                 details="The requested resource is not available. Please try to navigate back to the homepage")
             self.__content = [response.content_bytes]
             self.__headers = response.headers

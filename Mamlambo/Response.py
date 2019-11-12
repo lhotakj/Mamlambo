@@ -1,4 +1,7 @@
 import re
+import inspect
+import os
+import pickle
 
 
 class Response():
@@ -11,6 +14,33 @@ class Response():
 
     def __init__(self):
         self.reset()
+        frame = inspect.stack()[1][0]
+        # read request data from hidden variable and deletes it
+        if "_RESPONSE" in frame.f_locals:
+            # self.url = frame.f_locals["__REQUEST"].url
+            # self.method = frame.f_locals["__REQUEST"].method
+            obj = pickle.loads(frame.f_locals["_RESPONSE"])
+            if obj.headers:
+                self.headers = obj.headers
+                for h in obj.headers:
+                    # TODO:
+                    if h[0].lower() != 'content-length':
+                        self.headers.append(h)
+            self.headers = list(dict.fromkeys(self.headers))
+
+            n = []
+            for i in self.headers:
+                if i[0].lower() != 'content-length':
+                    n.append(i)
+            self.headers = n
+
+            print("<br /><br />" + str(self.headers))
+            print("<br /><br />")
+
+            if obj.mime:
+                self.mime = obj.mime
+            # remove _REQUEST and _RESPONSE so it's invisible for user
+            del frame.f_locals["_RESPONSE"]
 
     def detect_encoding(self):
         regex = r";[ ]*(?i)(charset)=(.*)"  # case insensitive "charset" followed by semicolon an x spaces

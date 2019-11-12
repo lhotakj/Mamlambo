@@ -28,7 +28,6 @@ class Request():
     __obj = None
 
     def __init__(self, headers=None, ):
-
         frame = inspect.stack()[1][0]
         # read request data from hidden variable and deletes it
         if "_REQUEST" in frame.f_locals:
@@ -45,10 +44,6 @@ class Request():
                         pass
             # remove _REQUEST and _RESPONSE so it's invisible for user
             del frame.f_locals["_REQUEST"]
-
-        # if response delivered then delete it
-        #if "_RESPONSE" in frame.f_locals:
-        #    del frame.f_locals["_RESPONSE"]
 
         if headers:
             self.__headers = headers

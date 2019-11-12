@@ -35,7 +35,7 @@ class Router:
             exception_response = config.parse_config(env, path_to_configuration)
             if isinstance(exception_response, Response):
                 self.__content = [exception_response.content_bytes]
-                self.__headers = exception_response.headers
+                self.__headers = exception_response.headers_render
                 self.__status = exception_response.status
                 return
 
@@ -43,7 +43,7 @@ class Router:
         exception_response = config.parse_request(env, request)
         if isinstance(exception_response, Response):
             self.__content = [exception_response.content_bytes]
-            self.__headers = exception_response.headers
+            self.__headers = exception_response.headers_render
             self.__status = exception_response.status
             return
 
@@ -61,7 +61,7 @@ class Router:
         Routes(config.redirections, request, response, Mode.redirection)
         if response.complete:
             self.__content = [b'']
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
             if internal_cache:
                 cache.set(url=request.uri, content=[response.content_bytes], headers=response.headers,
@@ -75,7 +75,7 @@ class Router:
         Default.Default(config, request, response)
         if response.complete:
             self.__content = [response.content_bytes]
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
             if internal_cache:
                 cache.set(url=request.uri, content=[response.content_bytes], headers=response.headers,
@@ -86,7 +86,7 @@ class Router:
         Static.Static(config, request, response)
         if response.complete:
             self.__content = [response.content_bytes]
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
             if internal_cache:
                 cache.set(url=request.uri, content=[response.content_bytes], headers=response.headers,
@@ -101,7 +101,7 @@ class Router:
         Dynamic.RendererMain(request, response)
         if response.complete:
             self.__content = [response.content_bytes]
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
             return
         else:
@@ -110,7 +110,7 @@ class Router:
                 error="Page not found",
                 details="The requested resource is not available. Please try to navigate back to the homepage")
             self.__content = [response.content_bytes]
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
 
         return

@@ -1,4 +1,5 @@
-import Mamlambo
+from Mamlambo.Core.Configuration import Configuration
 
-config = Mamlambo.Configuration.Configuration
+config = Configuration
 debug=config.document_root
+

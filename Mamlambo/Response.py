@@ -14,10 +14,10 @@ class Response():
     def __init__(self):
         frame = inspect.stack()[1][0]
         # read request data from hidden variable and deletes it
-        if "_RESPONSE" in frame.f_locals:
+        if "__HIDDEN__RESPONSE__" in frame.f_locals:
             # self.url = frame.f_locals["__REQUEST"].url
             # self.method = frame.f_locals["__REQUEST"].method
-            obj = pickle.loads(frame.f_locals["_RESPONSE"])
+            obj = pickle.loads(frame.f_locals["__HIDDEN__RESPONSE__"])
             if obj.headers:
                 self.headers = []
                 for h in obj.headers:
@@ -31,7 +31,7 @@ class Response():
             if obj.code:
                 self.code = obj.code
             # remove _REQUEST and _RESPONSE so it's invisible for user
-            del frame.f_locals["_RESPONSE"]
+            del frame.f_locals["__HIDDEN__RESPONSE__"]
         else:
             self.reset()
 

@@ -29,10 +29,10 @@ class Request():
     def __init__(self, headers=None):
         frame = inspect.stack()[1][0]
         # read request data from hidden variable and deletes it
-        if "_REQUEST" in frame.f_locals:
+        if "__HIDDEN__REQUEST__" in frame.f_locals:
             # self.url = frame.f_locals["__REQUEST"].url
             # self.method = frame.f_locals["__REQUEST"].method
-            obj = pickle.loads(frame.f_locals["_REQUEST"])
+            obj = pickle.loads(frame.f_locals["__HIDDEN__REQUEST__"])
             self.__obj = obj
             for variable in dir(self):
                 if not variable.startswith('_'):
@@ -42,7 +42,7 @@ class Request():
                     except:
                         pass
             # remove _REQUEST and _RESPONSE so it's invisible for user
-            del frame.f_locals["_REQUEST"]
+            del frame.f_locals["__HIDDEN__REQUEST__"]
 
         if headers:
             self.__headers = headers

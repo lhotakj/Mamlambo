@@ -44,7 +44,7 @@ class Dynamic:
                 f2 = sys._getframe(1).f_code.co_name
             sys.stderr.write(f"[{f1}:{f2}] {text}\n")
 
-    # injects _REQUEST and parse _RESPONSE
+    # injects __HIDDEN__REQUEST__ and parse __HIDDEN__RESPONSE__
     def inject_code_for_execute(self, code):
         request = self.__request
         response = Response()
@@ -53,14 +53,14 @@ class Dynamic:
         response.code = 200
         req = pickle.dumps(request)
         res = pickle.dumps(response)
-        code = "_REQUEST=" + str(req) + "\n" + \
-               "_RESPONSE=" + str(res) + "\n" + \
+        code = "__HIDDEN__REQUEST__=" + str(req) + "\n" + \
+               "__HIDDEN__RESPONSE__=" + str(res) + "\n" + \
                code + "\n" + \
                "import pickle" + "\n" + \
                "from Mamlambo.Response import Response" + "\n" + \
                'for o in filter(lambda x: (not x.startswith("__")), dir()):' + '\n' + \
                '    if (o in locals() and isinstance(locals()[o], Response)):' + "\n" + \
-               '        _RESPONSE=pickle.dumps(locals()[o])'
+               '        __HIDDEN__RESPONSE__=pickle.dumps(locals()[o])'
         return code
 
     # exec already injected code
@@ -70,8 +70,9 @@ class Dynamic:
             local_env = {}
             exec(code, {}, local_env)
             self.__page_result = buf.getvalue()
-            if "_RESPONSE" in local_env:
-                response_pickled = [val for key, val in local_env.items() if key == "_RESPONSE"][0]
+            if "__HIDDEN__RESPONSE__" in local_env:
+                self.verbose("exec found")
+                response_pickled = [val for key, val in local_env.items() if key == "__HIDDEN__RESPONSE__"][0]
                 decoded_response = pickle.loads(response_pickled)
                 self.__page_mime = decoded_response.mime
                 self.__page_code = decoded_response.code
@@ -169,6 +170,12 @@ class Dynamic:
                     cdata_scripts=True,
                     strip_text=True)
                 self.__page_result = x().render()
+                # dirty trick how to get the response using exec()
+                hidden_response = re.findall(r"__HIDDEN__RESPONSE__=b'.*'", self.__page_raw)
+                if hidden_response:
+                    hidden_response_value = hidden_response[0]
+                    # self.execute_code(hidden_response_value)
+
             except Exception as ex:
                 response_exception = MamlamboException.render(500,
                                                               error="Page rendering error",

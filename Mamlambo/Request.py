@@ -4,9 +4,7 @@ from urllib.parse import urlparse
 
 from Mamlambo.Session import Session
 import inspect
-import os
 import pickle
-import time
 
 
 class Request():

@@ -105,6 +105,9 @@ class Configuration(metaclass=Singleton.Singleton):
 
     @staticmethod
     def parse_request(env, request):
+        import time
+        request.unique_id = str(int(round(time.time() * 1000)))
+
         for env_key, env_value in env.items():
             # print(env_key + " = " + str(env_value))
             # add any items from dictionary starting with HTTP_ as request headers.

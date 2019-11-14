@@ -93,10 +93,10 @@ class Router:
                           status=response.status)
             return
 
-        #print('--after-statisc --')
-        #print("response.content=" + str(response.content_bytes))
-        #print("response.complete=" + str(response.complete))
-        #print("response.status=" + str(response.status))
+        # print('--after-statisc --')
+        # print("response.content=" + str(response.content_bytes))
+        # print("response.complete=" + str(response.complete))
+        # print("response.status=" + str(response.status))
 
         Dynamic.RendererMain(request, response)
         if response.complete:

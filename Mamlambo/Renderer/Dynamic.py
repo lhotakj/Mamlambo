@@ -147,7 +147,7 @@ class Dynamic:
                 self.__page_mime = response_exception.mime
                 return
 
-            return
+            # return
 
         # one <%page %>
         elif len_matches == 1:
@@ -172,9 +172,11 @@ class Dynamic:
             except Exception as ex:
                 response_exception = MamlamboException.render(500,
                                                               error="Page rendering error",
-                                                              description="Error in rendering",
-                                                              stack_trace=str(ex).replace("\n", "<br />") + "<br>" +
-                                                                          traceback.format_exc().replace("\n", "<br>"))
+                                                              description="An error occurred in rendering.",
+                                                              stack_trace= str(ex)
+                                                                        # str(ex).replace("\n", "<br />") + "<br>" +
+                                                                        #   traceback.format_exc().replace("\n", "<br>")
+                                                              )
                 self.__page_result = response_exception.content_bytes.decode('UTF-8')
                 self.__http_code = response_exception.code
                 self.__page_mime = response_exception.mime
@@ -400,7 +402,7 @@ class Dynamic:
         masterpage = None  # to hold source code
 
         if self.__page_master:
-            self.verbose("- USES MASTER PAGE -")
+            self.verbose("►►►►► USES MASTER PAGE -")
             page_master_file_name = Configuration().map_path(path_info=self.__page_master)
             self.verbose("!RendererDynamic('" + page_master_file_name + "')")
             masterpage = Dynamic(self.__request, page_master_file_name, is_nested_call=1)
@@ -410,11 +412,11 @@ class Dynamic:
             self.verbose("master_code:\n---\n" + str(masterpage.__page_code_source) + "\n---")
             self.verbose('-- original page')
             self.parse_page_placholders()
-            self.verbose("page_placeholderse: " + str(self.page_placeholders))
+            # self.verbose("page_placeholderse: " + str(self.page_placeholders))
             # print(self.__page_raw)
             # TODO:
-            self.verbose("page_placeholderse: " + json.dumps(self.page_placeholders, indent=2))
-            self.verbose("master_placeholderse: " + json.dumps(masterpage.master_placeholders, indent=2))
+            self.verbose(">>>>> page_placeholderse: " + json.dumps(self.page_placeholders, indent=2))
+            self.verbose(">>>>> master_placeholderse: " + json.dumps(masterpage.master_placeholders, indent=2))
 
             # validate
             count_page_placeholders = len(self.page_placeholders)
@@ -519,7 +521,7 @@ class Dynamic:
             if self.__page_code_source:
                 self.__page_raw = self.insert_str(
                     self.__page_raw,
-                    "\n<?python:\n" +
+                    "\n<?python\n" +
                     include_master_page_source_code + "\n" + self.__page_code_source + "\n?>",
                     match.end())
             break

@@ -21,13 +21,14 @@ class Request():
     __uri = None
     __path_info = None
     __query_string = None
+    __unique_id = ""
 
     __get = None
 
     __master = None
     __obj = None
 
-    def __init__(self, headers=None, ):
+    def __init__(self, headers=None):
         frame = inspect.stack()[1][0]
         # read request data from hidden variable and deletes it
         if "_REQUEST" in frame.f_locals:
@@ -141,3 +142,11 @@ class Request():
     @query_string.setter
     def query_string(self, value):
         self.__query_string = value
+
+    @property
+    def unique_id(self):
+        return self.__unique_id
+
+    @unique_id.setter
+    def unique_id(self, value):
+        self.__unique_id = value

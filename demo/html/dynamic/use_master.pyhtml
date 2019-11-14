@@ -4,7 +4,7 @@
 
 <py:placeholder id="header">
 
- <span py:content="literal(master_name)" />
+ <span py:content="literal(v)" />
 
  <span py:content="logo" />
   this is my header

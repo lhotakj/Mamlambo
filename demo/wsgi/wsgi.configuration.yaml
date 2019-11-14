@@ -45,16 +45,16 @@ extensions:
       - ETag: ''
     methods:
       - GET
-      
 
   - extension: ".pyhtml"
     serve: dynamic
-    mime: "image/png"
+    mime: "text/html; encoding=utf-8"
     headers:
+      - X-test: a
       - Cache-Control: public, max-age=3600
-      - ETag: ''
+      - ETag: 'ab'
     methods:
-      - GET      
+      - GET
       
 default_document:
 - default.html

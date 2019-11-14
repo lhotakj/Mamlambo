@@ -8,13 +8,23 @@
 
 <h2>List or properties and methods of instantiated Request()</h2>
 <?python
-variables = filter(lambda x: not x.startswith("_"), dir(request))
+variables = filter(lambda x: (not x.startswith("_") and not callable(getattr(request,x))), dir(request))
 ?>
-
 <table>
   <tr><td>Object</td><td>Value</td></tr>
   <tr py:for="variable in variables">
     <td>${literal(variable)}</td><td>${str(getattr(request,variable))}</td>
+  </tr>
+</table>
+
+<h2>List or properties and methods of instantiated Response()</h2>
+<?python
+variables = ["mime", "headers", "code"]
+?>
+<table>
+  <tr><td>Object</td><td>Value</td></tr>
+  <tr py:for="variable in variables">
+    <td>${literal(variable)}</td><td>${str(getattr(response,variable))}</td>
   </tr>
 </table>
 

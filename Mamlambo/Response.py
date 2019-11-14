@@ -1,4 +1,6 @@
 import re
+import inspect
+import pickle
 
 
 class Response():
@@ -10,7 +12,28 @@ class Response():
     __complete = False  # if set True, the response is ready to be sent, use for immature end, error ...
 
     def __init__(self):
-        self.reset()
+        frame = inspect.stack()[1][0]
+        # read request data from hidden variable and deletes it
+        if "_RESPONSE" in frame.f_locals:
+            # self.url = frame.f_locals["__REQUEST"].url
+            # self.method = frame.f_locals["__REQUEST"].method
+            obj = pickle.loads(frame.f_locals["_RESPONSE"])
+            if obj.headers:
+                self.headers = []
+                for h in obj.headers:
+                    if h[0].lower() != 'content-length':
+                        self.headers.append(h)
+            else:
+                self.reset()
+            self.headers = list(dict.fromkeys(self.headers))
+            if obj.mime:
+                self.mime = obj.mime
+            if obj.code:
+                self.code = obj.code
+            # remove _REQUEST and _RESPONSE so it's invisible for user
+            del frame.f_locals["_RESPONSE"]
+        else:
+            self.reset()
 
     def detect_encoding(self):
         regex = r";[ ]*(?i)(charset)=(.*)"  # case insensitive "charset" followed by semicolon an x spaces
@@ -81,6 +104,10 @@ class Response():
 
     @property
     def headers(self):
+        return self.__headers
+
+    @property
+    def headers_render(self):
         content_length = [("Content-Length", str(len(self.__content_bytes)))]
         content_type = [("Content-Type", self.__mime)]
         return self.__headers + content_length + content_type

@@ -1,5 +1,4 @@
-
-<?python:
+#!/usr/python
 
 from Mamlambo.Request import Request
 from Mamlambo.Response import Response

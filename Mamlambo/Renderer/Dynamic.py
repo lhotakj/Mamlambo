@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import pickle
-
 import kajiki
 import re
 import os
+import sys
 import io
 import copy
 import json
@@ -12,6 +12,7 @@ import traceback
 from contextlib import redirect_stdout
 from Mamlambo.Core.Configuration import Configuration
 from Mamlambo.Core.MamlamboException import MamlamboException
+from Mamlambo.Response import Response
 
 
 class Dynamic:
@@ -22,6 +23,7 @@ class Dynamic:
     __page_code = None  # filename with code behind
     __page_code_source = None  # source code of code behind
     __page_mime = None
+    __page_headers = []
     __http_code = 200
     __page_filename = None
     __type = None  # master | page
@@ -34,16 +36,60 @@ class Dynamic:
 
     def verbose(self, text):
         if self.__verbose:
-            print(text)
+            f1 = "?"
+            f2 = "?"
+            if sys._getframe(1) and sys._getframe(1).f_code.co_filename:
+                f1 = os.path.basename(sys._getframe(1).f_code.co_filename)
+            if sys._getframe(1) and sys._getframe(1).f_code.co_name:
+                f2 = sys._getframe(1).f_code.co_name
+            sys.stderr.write(f"[{f1}:{f2}] {text}\n")
 
-    def __init__(self, request, file_name, is_fragment=False, is_nested_call=0):
+    # injects _REQUEST and parse _RESPONSE
+    def inject_code_for_execute(self, code):
+        request = self.__request
+        response = Response()
+        response.mime = self.__page_mime
+        response.headers = self.__page_headers
+        response.code = 200
+        req = pickle.dumps(request)
+        res = pickle.dumps(response)
+        code = "_REQUEST=" + str(req) + "\n" + \
+               "_RESPONSE=" + str(res) + "\n" + \
+               code + "\n" + \
+               "import pickle" + "\n" + \
+               "from Mamlambo.Response import Response" + "\n" + \
+               'for o in filter(lambda x: (not x.startswith("__")), dir()):' + '\n' + \
+               '    if (o in locals() and isinstance(locals()[o], Response)):' + "\n" + \
+               '        _RESPONSE=pickle.dumps(locals()[o])'
+        return code
+
+    # exec already injected code
+    def execute_code(self, code):
+        code = self.inject_code_for_execute(code)
+        with io.StringIO() as buf, redirect_stdout(buf):
+            local_env = {}
+            exec(code, {}, local_env)
+            self.__page_result = buf.getvalue()
+            if "_RESPONSE" in local_env:
+                response_pickled = [val for key, val in local_env.items() if key == "_RESPONSE"][0]
+                decoded_response = pickle.loads(response_pickled)
+                self.__page_mime = decoded_response.mime
+                self.__page_code = decoded_response.code
+                self.__page_headers = decoded_response.headers
+
+    def __init__(self, request, file_name, is_fragment=False, is_nested_call=0, default_response=None):
         self.__request = request
-        self.__page_mime = "text/html"
+        if default_response:
+            self.__page_mime = default_response.mime
+            self.__page_headers = default_response.headers
+        else:
+            self.__page_mime = "text/html"
         self.__http_code = 200
         self.__page_filename = file_name
         self.__is_nested_call = is_nested_call
         self.verbose("RendererDynamic.init('" + str(file_name) + "',is_nested_call=" + str(is_nested_call) + ")")
-        self.read_file()
+        if not self.read_file():
+            return
 
         # detect <@page ... > ------------------------------------------------------------------------------------------
         regex_page = r"^(\s+|)*<%(\s+|)*[pP][aA][gG][eE](.*|\n)%>"
@@ -71,12 +117,12 @@ class Dynamic:
             self.__page_mime = response_exception.mime
             return
 
-        # no <%page %> so expects <?python: ?>
+        # no <%page %> so expects '<?python: ?>' or shebang '#!/...'
         elif len_matches == 0:
             try:
                 self.__page_raw = self.__page_raw.strip("\n").strip("").strip("\n")
                 first_line = str(self.__page_raw.partition('\n')[0]).lower()
-                if first_line[:8] == "<?python":
+                if first_line[:8] == "<?python" or first_line[:3] == "#!/":
                     if self.__page_raw.endswith("?>"):
                         self.__page_raw = self.__page_raw[:-2]
                     lines = self.__page_raw.splitlines()
@@ -84,15 +130,9 @@ class Dynamic:
                     self.__page_raw = "\n".join(lines)
                     self.verbose("ONLY CODE:\n---------------" + self.__page_raw)
 
-                    #TODO: copy ! refactor
-                    request = self.__request
-                    req = pickle.dumps(request)
-                    self.__page_raw = "_REQUEST=" + str(req) + "\n" + self.__page_raw
-
-                    with io.StringIO() as buf, redirect_stdout(buf):
-                        exec(self.__page_raw)
-                        self.__page_result = buf.getvalue()
-                        return
+                    # execute_code
+                    self.execute_code(self.__page_raw)
+                    return
                 else:  # not decorated so display as static
                     self.__page_result = self.__page_raw
                     self.__http_code = 200
@@ -107,7 +147,7 @@ class Dynamic:
                 self.__page_mime = response_exception.mime
                 return
 
-            return
+            # return
 
         # one <%page %>
         elif len_matches == 1:
@@ -132,9 +172,11 @@ class Dynamic:
             except Exception as ex:
                 response_exception = MamlamboException.render(500,
                                                               error="Page rendering error",
-                                                              description="Error in rendering",
-                                                              stack_trace=str(ex).replace("\n", "<br />") + "<br>" +
-                                                                          traceback.format_exc().replace("\n", "<br>"))
+                                                              description="An error occurred in rendering.",
+                                                              stack_trace= str(ex)
+                                                                        # str(ex).replace("\n", "<br />") + "<br>" +
+                                                                        #   traceback.format_exc().replace("\n", "<br>")
+                                                              )
                 self.__page_result = response_exception.content_bytes.decode('UTF-8')
                 self.__http_code = response_exception.code
                 self.__page_mime = response_exception.mime
@@ -360,21 +402,21 @@ class Dynamic:
         masterpage = None  # to hold source code
 
         if self.__page_master:
-            # print('-- using master page')
+            self.verbose("►►►►► USES MASTER PAGE -")
             page_master_file_name = Configuration().map_path(path_info=self.__page_master)
             self.verbose("!RendererDynamic('" + page_master_file_name + "')")
             masterpage = Dynamic(self.__request, page_master_file_name, is_nested_call=1)
             self.verbose("!After RendererDynamic of master:" + str(masterpage))
-            # print('-- master info')
-            # print("master_placeholderse: " + str(masterpage.master_placeholders))
-            # print("master_code:\n---\n" + str(masterpage.__page_code_source) + "\n---")
-            # print('-- original page')
+            self.verbose('-- master info')
+            self.verbose("master_placeholderse: " + str(masterpage.master_placeholders))
+            self.verbose("master_code:\n---\n" + str(masterpage.__page_code_source) + "\n---")
+            self.verbose('-- original page')
             self.parse_page_placholders()
-            # print("page_placeholderse: " + str(self.page_placeholders))
+            # self.verbose("page_placeholderse: " + str(self.page_placeholders))
             # print(self.__page_raw)
             # TODO:
-            self.verbose("page_placeholderse: " + json.dumps(self.page_placeholders, indent=2))
-            self.verbose("master_placeholderse: " + json.dumps(masterpage.master_placeholders, indent=2))
+            self.verbose(">>>>> page_placeholderse: " + json.dumps(self.page_placeholders, indent=2))
+            self.verbose(">>>>> master_placeholderse: " + json.dumps(masterpage.master_placeholders, indent=2))
 
             # validate
             count_page_placeholders = len(self.page_placeholders)
@@ -463,18 +505,14 @@ class Dynamic:
             else:
                 include_master_page_source_code = ""
 
-            # inject_request = "__REQUEST = '" + str(req) + "'\n";
-
             # TODO: REFACTOR
             request = self.__request
-            print("~AAAA~~~~~~~~~~~")
-            print(self.__request.method)
-            print("~AAAA~~~~~~~~~~~")
-            req = pickle.dumps(request)
-            inject_request = "_REQUEST=" + str(req) + "\n"
-            # inject_request = "_REQUEST=request\n"
+            self.verbose("METHOD=" + self.__request.method)
 
-            self.__page_code_source = inject_request + self.__page_code_source
+            #req = pickle.dumps(request)
+            #inject_request = "_REQUEST=" + str(req) + "\n"
+            self.__page_code_source = self.inject_code_for_execute(self.__page_code_source)
+            #self.__page_code_source = inject_request + self.__page_code_source
 
             print('~~~~~~~~')
             print('self.__page_code_source:\n' + str(self.__page_code_source))
@@ -483,19 +521,18 @@ class Dynamic:
             if self.__page_code_source:
                 self.__page_raw = self.insert_str(
                     self.__page_raw,
-                    "\n<?python:\n" +
+                    "\n<?python\n" +
                     include_master_page_source_code + "\n" + self.__page_code_source + "\n?>",
                     match.end())
             break
 
+        # if markup does not include code begind
         if not found:
             try:
                 # no source
-                print("self.__page_code_source:" + str(self.__page_code_source))
                 if self.__page_code_source:
-                    with io.StringIO() as buf, redirect_stdout(buf):
-                        exec(self.__page_code_source)
-                        self.__page_result = buf.getvalue()
+                    # execute_code
+                    self.execute_code(self.__page_code_source)
                 else:
                     self.__page_result = ""
             except Exception as ex:
@@ -586,6 +623,10 @@ class Dynamic:
     def page_code_source(self):
         return self.__page_code_source
 
+    @property
+    def page_headers(self):
+        return self.__page_headers
+
 
 # main entry
 class RendererMain:
@@ -593,13 +634,24 @@ class RendererMain:
     __page_mime = None
     __http_code = 200
 
-    # def __init__(self, file_name, is_fragment=False):
     def __init__(self, request, response):
         file_name = Configuration().map_path(path_info=request.path_info)
-        markdown = Dynamic(request, file_name, is_fragment=False, is_nested_call=0)
+        for item in Configuration().extensions_dynamic:
+            for key, value in item.items():
+                if request.path_info.endswith(key):
+                    if "mime" in value:
+                        response.mime = value["mime"]
+                    else:
+                        response.mime = "html/text"
+                    response.code = 200
+                    if "headers" in value:
+                        response.add_header_from_config(value["headers"])
+
+        markdown = Dynamic(request, file_name, is_fragment=False, is_nested_call=0, default_response=response)
         response.mime = markdown.page_mime
         response.content_str = markdown.page_result
         response.code = markdown.http_code
+        response.headers = markdown.page_headers
         response.end()
 
     @property

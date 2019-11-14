@@ -1,4 +1,6 @@
 <%page code="code.py" %>
 <html>
-<span py:content="debug"/>
+
+HTML root: <span py:content="debug"/>
+
 </html>

@@ -35,7 +35,7 @@ class Router:
             exception_response = config.parse_config(env, path_to_configuration)
             if isinstance(exception_response, Response):
                 self.__content = [exception_response.content_bytes]
-                self.__headers = exception_response.headers
+                self.__headers = exception_response.headers_render
                 self.__status = exception_response.status
                 return
 
@@ -43,7 +43,7 @@ class Router:
         exception_response = config.parse_request(env, request)
         if isinstance(exception_response, Response):
             self.__content = [exception_response.content_bytes]
-            self.__headers = exception_response.headers
+            self.__headers = exception_response.headers_render
             self.__status = exception_response.status
             return
 
@@ -61,7 +61,7 @@ class Router:
         Routes(config.redirections, request, response, Mode.redirection)
         if response.complete:
             self.__content = [b'']
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
             if internal_cache:
                 cache.set(url=request.uri, content=[response.content_bytes], headers=response.headers,
@@ -75,7 +75,7 @@ class Router:
         Default.Default(config, request, response)
         if response.complete:
             self.__content = [response.content_bytes]
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
             if internal_cache:
                 cache.set(url=request.uri, content=[response.content_bytes], headers=response.headers,
@@ -86,32 +86,31 @@ class Router:
         Static.Static(config, request, response)
         if response.complete:
             self.__content = [response.content_bytes]
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
             if internal_cache:
                 cache.set(url=request.uri, content=[response.content_bytes], headers=response.headers,
                           status=response.status)
             return
 
-        print('--after-statisc --')
-        print("response.content=" + str(response.content_bytes))
-        print("response.complete=" + str(response.complete))
-        print("response.status=" + str(response.status))
+        # print('--after-statisc --')
+        # print("response.content=" + str(response.content_bytes))
+        # print("response.complete=" + str(response.complete))
+        # print("response.status=" + str(response.status))
 
         Dynamic.RendererMain(request, response)
         if response.complete:
             self.__content = [response.content_bytes]
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
             return
         else:
-            print('hehe')
             response = MamlamboException.render(
                 http_code=404,
-                error="Page not found (END)",
+                error="Page not found",
                 details="The requested resource is not available. Please try to navigate back to the homepage")
             self.__content = [response.content_bytes]
-            self.__headers = response.headers
+            self.__headers = response.headers_render
             self.__status = response.status
 
         return

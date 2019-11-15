@@ -2,9 +2,11 @@
 
 <img src="https://github.com/lhotakj/Mamlambo/raw/master/doc/assets/title.png" width="250" />
 
-[![CircleCI](https://circleci.com/gh/lhotakj/Mamlambo/tree/master.svg?style=svg)](https://circleci.com/gh/lhotakj/Mamlambo/tree/master) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Mamlambo&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mamlambo)
+[![CircleCI](https://circleci.com/gh/lhotakj/Mamlambo/tree/master.svg?style=svg)](https://circleci.com/gh/lhotakj/Mamlambo/tree/master) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Mamlambo&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mamlambo) [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/lhotakj/Mamlambo/graphs/commit-activity) 
 
 [![DeepSource](https://static.deepsource.io/deepsource-badge-light.svg)](https://deepsource.io/gh/lhotakj/Mamlambo/?ref=repository-badge)
+
+![Python 2.x](https://img.shields.io/badge/python&nbsp;2-no-red.svg) ![Python 3.4+](https://img.shields.io/badge/python&nbsp;3.4-yes-green.svg)
 
 Mamlambo a full stack light weighted Python 3.4+ WSGI framework supporting easy templating, based on [Kajiki](https://github.com/nandoflorestan/kajiki/tree/master/kajiki). It's inspired by Microsoft .NET web-forms (web forms with master pages) and IIS configuration while also taking some Apache configuration concepts. The key features are as follows:
 

@@ -1,0 +1,7 @@
+<%page code="service.pyhtml.py" %>
+<html>
+<span py:content="title"></span>
+
+<br />
+<span py:content="content"></span>
+</html>

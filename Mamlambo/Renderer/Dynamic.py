@@ -45,7 +45,8 @@ class Dynamic:
             sys.stderr.write(f"[{f1}:{f2}] {text}\n")
 
     # injects __HIDDEN__REQUEST__ and parse __HIDDEN__RESPONSE__
-    def inject_code_for_execute(self, code):
+    # TODO: to solve kajiki_patch
+    def inject_code_for_execute(self, code, kajiki_patch=False):
         request = self.__request
         response = Response()
         response.mime = self.__page_mime
@@ -60,20 +61,34 @@ class Dynamic:
                "from Mamlambo.Response import Response" + "\n" + \
                'for o in filter(lambda x: (not x.startswith("__")), dir()):' + '\n' + \
                '    if (o in locals() and isinstance(locals()[o], Response)):' + "\n" + \
-               '        __HIDDEN__RESPONSE__=pickle.dumps(locals()[o])'
+               '        print(locals()[o])' + "\n" + \
+               '        __HIDDEN__RESPONSE__OUT__=pickle.dumps(locals()[o])' + "\n"
+        # renders the serialized content directly to the output!
+        if kajiki_patch:
+            code += \
+            '?>' + "\n" + \
+            '#__HIDDEN__RESPONSE__OUT__=${__HIDDEN__RESPONSE__OUT__}#' + "\n" + \
+            '<?python ' + "\n" + \
+            'pass' + "\n"
+
         return code
 
     # exec already injected code
-    def execute_code(self, code):
+    def execute_code(self, code, set_output = True):
         code = self.inject_code_for_execute(code)
         with io.StringIO() as buf, redirect_stdout(buf):
             local_env = {}
             exec(code, {}, local_env)
-            self.__page_result = buf.getvalue()
-            if "__HIDDEN__RESPONSE__" in local_env:
+            if set_output:
+                self.__page_result = buf.getvalue()
+            if "__HIDDEN__RESPONSE__OUT__" in local_env:
                 self.verbose("exec found")
-                response_pickled = [val for key, val in local_env.items() if key == "__HIDDEN__RESPONSE__"][0]
-                decoded_response = pickle.loads(response_pickled)
+                response_pickled = [val for key, val in local_env.items() if key == "__HIDDEN__RESPONSE__OUT__"][0]
+                self.verbose("exec " + str(response_pickled))
+                decoded_response = pickle.loads(response_pickled, encoding="UTF-8")
+                print("//" + str(dir(decoded_response)))
+                print("//" + decoded_response.mime)
+                print("//" + str(decoded_response.headers))
                 self.__page_mime = decoded_response.mime
                 self.__page_code = decoded_response.code
                 self.__page_headers = decoded_response.headers
@@ -167,14 +182,15 @@ class Dynamic:
                     is_fragment=is_fragment,
                     encoding=u'utf-8',
                     autoblocks=None,
-                    cdata_scripts=True,
+                    cdata_scripts=False,
                     strip_text=True)
                 self.__page_result = x().render()
                 # dirty trick how to get the response using exec()
-                hidden_response = re.findall(r"__HIDDEN__RESPONSE__=b'.*'", self.__page_raw)
-                if hidden_response:
-                    hidden_response_value = hidden_response[0]
-                    # self.execute_code(hidden_response_value)
+                hidden_response = re.findall(r"__HIDDEN__RESPONSE__OUT__=b'.*'", self.__page_raw)
+                #if hidden_response:
+                #    hidden_response_value = hidden_response[0]
+                #    # I have the result, just need to evaluate the HIDDEN variable
+                #    self.execute_code(hidden_response_value, set_output=False)
 
             except Exception as ex:
                 response_exception = MamlamboException.render(500,
@@ -515,11 +531,7 @@ class Dynamic:
             # TODO: REFACTOR
             request = self.__request
             self.verbose("METHOD=" + self.__request.method)
-
-            #req = pickle.dumps(request)
-            #inject_request = "_REQUEST=" + str(req) + "\n"
-            self.__page_code_source = self.inject_code_for_execute(self.__page_code_source)
-            #self.__page_code_source = inject_request + self.__page_code_source
+            self.__page_code_source = self.inject_code_for_execute(self.__page_code_source, kajiki_patch=False)
 
             print('~~~~~~~~')
             print('self.__page_code_source:\n' + str(self.__page_code_source))
@@ -533,13 +545,13 @@ class Dynamic:
                     match.end())
             break
 
-        # if markup does not include code begind
+        # if markup does not include code behind
         if not found:
             try:
                 # no source
                 if self.__page_code_source:
                     # execute_code
-                    self.execute_code(self.__page_code_source)
+                    self.execute_code(self.__page_code_source, kajiki_patch=True)
                 else:
                     self.__page_result = ""
             except Exception as ex:

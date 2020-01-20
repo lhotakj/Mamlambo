@@ -1,0 +1,29 @@
+<%page masterpage="master.pyhtml" code="use_master.pyhtml.py" %>
+
+
+
+<py:placeholder id="header">
+
+ <b><span py:content="literal(v)" /></b>
+
+ <span py:content="logo" />
+  this is my header
+</py:placeholder>
+
+  <py:placeholder id="content">
+    abc
+  </py:placeholder>
+
+  <py:placeholder id="footer" >
+    FFFFFFFFFFFFFFFFFFFFA
+  </py:placeholder>
+
+<py:placeholder id="x">
+33333333
+
+DEBUG: ${literal(debug)}
+
+
+Powered by Mamlambo: <span py:content="version" />
+
+</py:placeholder>

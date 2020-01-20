@@ -1,0 +1,6 @@
+<%page code="index.py" %>
+<html>
+
+HTML root: <span py:content="debug"/>
+
+</html>
